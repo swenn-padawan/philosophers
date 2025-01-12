@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:35:24 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/12 04:02:48 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/01/12 17:08:28 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,10 @@ typedef struct	s_data
 typedef struct	s_philo
 {
 	int				id;
-	pthread_mutex_t	*left;
-	pthread_mutex_t	*right;
-	t_data			data;
+	pthread_mutex_t	*fork;
+	struct s_philo	*next;
+	struct s_philo	*prev;
+	int				last_eat;
 }	t_philo;
 
 //folder: parsing
