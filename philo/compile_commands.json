@@ -1,0 +1,92 @@
+[
+ {
+  "directory": "/Users/swenntetrel/42cursus/Philosophers/philo",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-g",
+   "-I",
+   "./includes",
+   "-o",
+   ".objs/src/main.o",
+   "-c",
+   "src/main.c",
+   ".objs/src/main.o.log"
+  ],
+  "file": "src/main.c"
+ },
+ {
+  "directory": "/Users/swenntetrel/42cursus/Philosophers/philo",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-g",
+   "-I",
+   "./includes",
+   "-o",
+   ".objs/src/parsing/parsing.o",
+   "-c",
+   "src/parsing/parsing.c",
+   ".objs/src/parsing/parsing.o.log"
+  ],
+  "file": "src/parsing/parsing.c"
+ },
+ {
+  "directory": "/Users/swenntetrel/42cursus/Philosophers/philo",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-g",
+   "-I",
+   "./includes",
+   "-o",
+   ".objs/src/utils/ft_atoi.o",
+   "-c",
+   "src/utils/ft_atoi.c",
+   ".objs/src/utils/ft_atoi.o.log"
+  ],
+  "file": "src/utils/ft_atoi.c"
+ },
+ {
+  "directory": "/Users/swenntetrel/42cursus/Philosophers/philo",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-g",
+   "-I",
+   "./includes",
+   "-o",
+   ".objs/src/utils/ft_strlen.o",
+   "-c",
+   "src/utils/ft_strlen.c",
+   ".objs/src/utils/ft_strlen.o.log"
+  ],
+  "file": "src/utils/ft_strlen.c"
+ },
+ {
+  "directory": "/Users/swenntetrel/42cursus/Philosophers/philo",
+  "arguments": [
+   "cc",
+   "-Wall",
+   "-Wextra",
+   "-Werror",
+   "-g",
+   "-I",
+   "./includes",
+   "-o",
+   ".objs/src/errors/parsing_errors.o",
+   "-c",
+   "src/errors/parsing_errors.c",
+   ".objs/src/errors/parsing_errors.o.log"
+  ],
+  "file": "src/errors/parsing_errors.c"
+ }
+]
