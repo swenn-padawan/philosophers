@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:29:38 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/11 15:01:13 by swenntetrel      ###   ########.fr       */
+/*   Updated: 2025/01/13 10:58:34 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,9 +75,11 @@ void	philo_parse_args(t_data *data, char **argv, int argc, int *err)
 	data->time_to_eat = ft_atoi(argv[3], &flag);
 	data->time_to_sleep = ft_atoi(argv[4], &flag);
 	if (argv[5])
+	{
 		data->nb_must_eat = ft_atoi(argv[5], &flag);
-	if (!data->nb_must_eat)
-		error = ERR_MUST_EAT;
+		if (!data->nb_must_eat)
+			error = ERR_MUST_EAT;
+	}
 	check_data(data, &error, flag);
 	handle_error(error);
 	*err = error;
