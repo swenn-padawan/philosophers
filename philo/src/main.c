@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 11:47:11 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/13 20:55:37 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/01/13 23:39:36 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,21 +19,32 @@ long	get_ms(struct timeval val)
 	return (val.tv_sec * 1000) + (val.tv_usec / 1000);
 }
 
+void	print_philo(t_philo *philo)
+{
+	printf("Philo %d has taken a fork\n", philo->id);
+}
+
 void	*routine(void *arg)
 {
-	t_simulation *sim = (t_simulation*)arg;
+	t_philo *philo = (t_philo *)arg;
 	struct timeval	tv;
 	long	res;
-
-	while (1)
+	
+	if (philo->flag)
 	{
-		gettimeofday(&tv, NULL);
-		res = get_ms(tv);
-		long res2 = get_ms(sim->time);
-		pthread_mutex_lock(&sim->mutex);
-		printf("elapsed time = %ld ms\n", res - res2);
-		pthread_mutex_unlock(&sim->mutex);
-		// if philo dead: break
+		while (1)
+		{
+			gettimeofday(&tv, NULL);
+			res = get_ms(tv);
+			long res2 = get_ms(philo->time);
+			pthread_mutex_lock(philo->mutex);
+
+			print_philo(philo);
+
+			pthread_mutex_unlock(philo->mutex);
+			if (res - res2 == philo->data.time_to_die)
+				break ;
+		}
 	}
 	return (NULL);
 }
@@ -54,33 +65,41 @@ int	check_data(char **argv, t_data *data, int argc)
 	return (0);
 }
 
-void	sim_init(t_simulation *simulation, t_philo **philos)
+void	sim_init(t_philo **philos, t_data src_data, int *flag)
 {
 	int	i;
+	pthread_mutex_t	routine_mutex;
 
 	i = -1;
-	*philos = malloc(sizeof(t_philo) * simulation->data.nb_philo);
+	*philos = malloc(sizeof(t_philo) * src_data.nb_philo);
 	if (!*philos)
 		return ;
-	while (++i < simulation->data.nb_philo)
+	pthread_mutex_init(&routine_mutex, NULL);
+	while (++i < src_data.nb_philo)
 	{
+		ft_memcpy(&(*philos)[i].data, &src_data, sizeof(t_data));
+		(*philos)[i].flag = flag;
 		(*philos)[i].id = i;
-		pthread_create(&(*philos)[i].fork, NULL, routine, simulation);
+		(*philos)[i].mutex = &routine_mutex;
+		pthread_create(&(*philos)[i].fork, NULL, routine, *philos);
 	}
+	*flag = 1;
 }
 
 int	main(int argc, char **argv)
 {
-	t_philo				*philos;
+	static t_philo		*philos = {0};
 	int					i;
-	t_simulation		simulation = {0};
+	t_data				data;
+	static int			flag = 0;
 
-	if (check_data(argv, &simulation.data, argc))
+	if (check_data(argv, &data, argc))
 		return (1);
-	sim_init(&simulation, &philos);
+	sim_init(&philos, data, &flag);
+	flag = 1;
 	i = -1;
-	gettimeofday(&simulation.time, NULL);
-	while (++i < simulation.data.nb_philo)
+	gettimeofday(&philos->time, NULL);
+	while (++i < (*philos).data.nb_philo)
 		pthread_join(philos[i].fork, NULL);
 	free(philos);
 }
