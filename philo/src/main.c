@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 11:47:11 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/13 16:38:56 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/01/13 19:35:57 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void	*routine(void *arg)
 	return (NULL);
 }
 
-static int	check_data(char **argv, t_data *data, int argc)
+int	check_data(char **argv, t_data *data, int argc)
 {
 	int	error;
 
@@ -53,7 +53,7 @@ static int	check_data(char **argv, t_data *data, int argc)
 	return (0);
 }
 
-static void	sim_init(t_simulation *simulation, t_philo **philos)
+void	sim_init(t_simulation *simulation, t_philo **philos)
 {
 	int	i;
 
@@ -69,11 +69,11 @@ static void	sim_init(t_simulation *simulation, t_philo **philos)
 	}
 }
 
-int	main(int argc, char **argv)
+/*int	main(int argc, char **argv)
 {
 	t_philo				*philos;
 	int					i;
-	static t_simulation	simulation = {0};
+	 t_simulation	simulation = {0};
 
 	if (check_data(argv, &simulation.data, argc))
 		return (1);
@@ -85,4 +85,21 @@ int	main(int argc, char **argv)
 		pthread_join(philos[i].fork, NULL);
 	pthread_mutex_destroy(&simulation.mutex);
 	free(philos);
+}*/
+
+int main(int argc, char **argv)
+{
+	t_simulation	simulation = {0};
+	struct timeval tv;
+	if (check_data(argv, &simulation.data, argc))
+		return (1);
+	gettimeofday(&simulation.time, NULL);
+	printf("sec = %lu | us = %lu\n", simulation.time.tv_usec, simulation.time.tv_sec);
+	gettimeofday(&tv, NULL);
+	printf("sec = %lu | us = %lu\n", tv.tv_usec, tv.tv_sec);
+
+	long	res_sec = simulation.time.tv_sec + tv.tv_sec;
+	long	res_usec = simulation.time.tv_usec + tv.tv_usec;
+	printf("sub_sec = %lu | sub_usec = %lu\n", res_sec, res_usec);
+
 }
