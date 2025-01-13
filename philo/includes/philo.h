@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:35:24 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/13 10:51:53 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/01/13 16:11:28 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <string.h>
+# include <sys/time.h>
 
 enum	e_error
 {
@@ -40,12 +41,19 @@ typedef struct	s_data
 
 typedef struct	s_philo
 {
-	int				id;
-	pthread_mutex_t	*fork;
-	struct s_philo	*next;
-	struct s_philo	*prev;
+	int						id;
+	pthread_t				fork;
+	struct s_philo			*next;
+	struct s_philo			*prev;
 	int				last_eat;
 }	t_philo;
+
+typedef struct	s_simulation
+{
+	pthread_mutex_t	mutex;
+	struct timeval	time;
+	t_data			data;
+}	t_simulation;
 
 //folder: parsing
 void	philo_parse_args(t_data *data, char **argv, int argc, int *err);
