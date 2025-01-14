@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:35:24 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/13 23:40:57 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/01/14 19:30:50 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ typedef struct	s_philo
 	int					id;
 	pthread_t			fork;
 	pthread_mutex_t		*mutex;
+	pthread_mutex_t		*fork_mutex;
 	struct s_philo		*next;
 	struct s_philo		*prev;
 	int					last_eat;
