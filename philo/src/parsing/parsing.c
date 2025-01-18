@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:29:38 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/13 10:58:34 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/01/17 07:54:10 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,7 @@ static void	check_data(t_data *data, int *err, int flag)
 	else if (valid_args_convertion(data->nb_philo)
 		|| valid_args_convertion(data->time_to_die)
 		|| valid_args_convertion(data->time_to_eat)
-		|| valid_args_convertion(data->time_to_sleep)
-		|| valid_args_convertion(data->nb_must_eat))
+		|| valid_args_convertion(data->time_to_sleep))
 		*err = ERR_NEGATIVE;
 }
 
