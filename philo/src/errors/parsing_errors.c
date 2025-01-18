@@ -6,7 +6,7 @@
 /*   By: swenntetrel <swenntetrel@42angouleme.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:21:34 by swenntetrel       #+#    #+#             */
-/*   Updated: 2025/01/11 15:04:13 by swenntetrel      ###   ########.fr       */
+/*   Updated: 2025/01/17 07:24:53 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void	handle_error(int error)
 {
 	if (error == ERR_NEGATIVE)
-		write (2, "Error!: You cannot put negative number!\n", 40);
+		write (2, "Error!: You cannot put negative number or zero!\n", 47);
 	if (error == ERR_NUMBER_ARGS)
 		write (2, "Error! Use example: ./philo <number_of_philosophers> <time_to_die> <time_to_eat> <time_to_sleep> Optional:<number_of_time_a_philo_must_eat>\n", 140);
 	if (error == ERR_ARGS_NOT_VALID)
