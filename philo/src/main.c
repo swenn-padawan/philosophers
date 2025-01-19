@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
+/*   By: jlorette <jlorette@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 11:47:11 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/18 20:29:45 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/01/19 11:01:59 by jlorette         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,16 +60,28 @@ int has_died(t_philo *philo, long time_to_die) {
 void *routine(void *arg) {
     t_philo *philo = (t_philo *)arg;
     t_data *data = &philo->data;
+	int first;
+	int second;
+	int tmp;
 
-    while (*(philo->flag) == 0)
+	first = philo->id % data->nb_philo;
+	second = (philo->id + 1) % data->nb_philo;
+	if (philo->id % 2)
+	{
+		tmp = first;
+		first = second;
+		second = tmp;
+	}
+
+		while (*(philo->flag) == 0)
         continue;
 
     while (*(philo->flag))
 	{
-        struct timeval current_time;
+        // struct timeval current_time;
 		if (has_died(philo, data->time_to_die))
 			break ;
-        gettimeofday(&current_time, NULL);
+        // gettimeofday(&current_time, NULL);
         pthread_mutex_lock(philo->mutex);
         long elapsed_time = get_elapsed_ms() - philo->last_eat;
         pthread_mutex_unlock(philo->mutex);
@@ -79,22 +91,24 @@ void *routine(void *arg) {
             *(philo->flag) = 0;
             break;
         }
-        pthread_mutex_lock(&data->forks[philo->id % data->nb_philo]);
-        print_state(get_elapsed_ms(), philo, "has taken the left fork", BLUE);
-        pthread_mutex_lock(&data->forks[(philo->id + 1) % data->nb_philo]);
-        print_state(get_elapsed_ms(), philo, "has taken the right fork", BLUE);
+       pthread_mutex_lock(&data->forks[first]);
+        print_state(get_elapsed_ms(), philo, "has taken the first fork", BLUE);
+        pthread_mutex_lock(&data->forks[second]);
+        print_state(get_elapsed_ms(), philo, "has taken the second fork", BLUE);
         print_state(get_elapsed_ms(), philo, "is eating", GREEN);
-        usleep(data->time_to_eat * 1000);
+
         pthread_mutex_lock(philo->mutex);
         philo->last_eat = get_elapsed_ms();
         pthread_mutex_unlock(philo->mutex);
-        pthread_mutex_unlock(&data->forks[philo->id % data->nb_philo]);
-        pthread_mutex_unlock(&data->forks[(philo->id + 1) % data->nb_philo]);
+
+        usleep(data->time_to_eat * 1000);
+        pthread_mutex_unlock(&data->forks[first]);
+        pthread_mutex_unlock(&data->forks[second]);
+
         print_state(get_elapsed_ms(), philo, "is sleeping", CYAN);
         usleep(data->time_to_sleep * 1000);
         print_state(get_elapsed_ms(), philo, "is thinking", MAGENTA);
     }
-
     return (NULL);
 }
 
@@ -121,7 +135,7 @@ void cleanup(t_philo *philos, t_data data)
 	int	i;
 
 	i = 0;
-    while (i < data.nb_philo) 
+    while (i < data.nb_philo)
 	{
 		pthread_mutex_destroy(&data.forks[i]);
         pthread_mutex_destroy(philos[i].mutex);
@@ -154,7 +168,7 @@ void sim_init(t_philo **philos, t_data src_data, int *flag)
         (*philos)[i].mutex = malloc(sizeof(pthread_mutex_t));
         pthread_mutex_init((*philos)[i].mutex, NULL);
 		gettimeofday(&(*philos)[i].time, NULL);
-        (*philos)[i].last_eat = get_ms((*philos)[i].time); 
+        (*philos)[i].last_eat = get_ms((*philos)[i].time);
         gettimeofday(&(*philos)[i].time, NULL);
 		(*philos)[i].left = &(*philos)[(i - 1 + src_data.nb_philo) % src_data.nb_philo];
 		(*philos)[i].right = &(*philos)[(i + 1) % src_data.nb_philo];
