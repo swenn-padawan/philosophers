@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 11:47:11 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/18 20:29:45 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/01/19 10:58:41 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,63 +40,64 @@ void print_state(long ms, t_philo *philo, char *state, char *color)
 	if (*(philo->flag) == 0)
 		return ;
     pthread_mutex_lock(philo->mutex);
-    printf("%s%ldms | Philosopher %d %s%s\n", color, ms, philo->id, state, RESET);
+    printf("%s%ldms | Philosopher %d %s%s\n", color, ms, philo->id + 1, state, RESET);
     pthread_mutex_unlock(philo->mutex);
 }
 
-int has_died(t_philo *philo, long time_to_die) {
-    struct timeval current_time;
-    gettimeofday(&current_time, NULL);
-    long elapsed_time = get_elapsed_ms() - philo->last_eat;
 
-    if (elapsed_time >= time_to_die) {
-        print_state(get_elapsed_ms(), philo, "has died", RED);
+int has_died(t_philo *philo, long time_to_die, pthread_mutex_t *mutex)
+{
+    long elapsed_time;
+
+    pthread_mutex_lock(mutex);
+    elapsed_time = get_elapsed_ms() - philo->last_eat;
+    if (elapsed_time >= time_to_die)
+    {
+        print_state(elapsed_time, philo, "has died", RED);
         *(philo->flag) = 0;
+        pthread_mutex_unlock(mutex);
         return (1);
     }
+    pthread_mutex_unlock(mutex);
     return (0);
 }
 
-void *routine(void *arg) {
+void *routine(void *arg)
+{
     t_philo *philo = (t_philo *)arg;
     t_data *data = &philo->data;
 
-    while (*(philo->flag) == 0)
-        continue;
-
     while (*(philo->flag))
-	{
-        struct timeval current_time;
-		if (has_died(philo, data->time_to_die))
-			break ;
-        gettimeofday(&current_time, NULL);
-        pthread_mutex_lock(philo->mutex);
-        long elapsed_time = get_elapsed_ms() - philo->last_eat;
-        pthread_mutex_unlock(philo->mutex);
-
-        if (elapsed_time >= data->time_to_die) {
-            print_state(get_elapsed_ms(), philo, "has died", RED);
-            *(philo->flag) = 0;
-            break;
-        }
+    {
+        if (has_died(philo, data->time_to_die, philo->flag_mutex))
+			break;
         pthread_mutex_lock(&data->forks[philo->id % data->nb_philo]);
         print_state(get_elapsed_ms(), philo, "has taken the left fork", BLUE);
         pthread_mutex_lock(&data->forks[(philo->id + 1) % data->nb_philo]);
         print_state(get_elapsed_ms(), philo, "has taken the right fork", BLUE);
+
+        // Philosophe mange
         print_state(get_elapsed_ms(), philo, "is eating", GREEN);
-        usleep(data->time_to_eat * 1000);
         pthread_mutex_lock(philo->mutex);
         philo->last_eat = get_elapsed_ms();
         pthread_mutex_unlock(philo->mutex);
+        usleep(data->time_to_eat * 1000);
+
+        // Libération des fourchettes
         pthread_mutex_unlock(&data->forks[philo->id % data->nb_philo]);
         pthread_mutex_unlock(&data->forks[(philo->id + 1) % data->nb_philo]);
+
+        // Philosophe dort
         print_state(get_elapsed_ms(), philo, "is sleeping", CYAN);
         usleep(data->time_to_sleep * 1000);
+
+        // Philosophe réfléchit
         print_state(get_elapsed_ms(), philo, "is thinking", MAGENTA);
     }
 
     return (NULL);
 }
+
 
 
 
@@ -131,7 +132,7 @@ void cleanup(t_philo *philos, t_data data)
     free(philos);
 }
 
-void sim_init(t_philo **philos, t_data src_data, int *flag)
+void sim_init(t_philo **philos, t_data src_data, int *flag, pthread_mutex_t *flag_mutex)
 {
 	int	i;
 
@@ -158,6 +159,7 @@ void sim_init(t_philo **philos, t_data src_data, int *flag)
         gettimeofday(&(*philos)[i].time, NULL);
 		(*philos)[i].left = &(*philos)[(i - 1 + src_data.nb_philo) % src_data.nb_philo];
 		(*philos)[i].right = &(*philos)[(i + 1) % src_data.nb_philo];
+		(*philos)[i].flag_mutex = flag_mutex;
 		i++;
     }
 }
@@ -167,11 +169,13 @@ int main(int argc, char **argv)
     static t_philo *philos = {0};
     int i;
     t_data data;
+	pthread_mutex_t	flag_mutex;
     static int flag = 0;
 
     if (check_data(argv, &data, argc))
 		return (1);
-    sim_init(&philos, data, &flag);
+	pthread_mutex_init(&flag_mutex, NULL);
+    sim_init(&philos, data, &flag, &flag_mutex);
     if (philos == NULL || data.forks == NULL)
         return (1);
     for (i = 0; i < data.nb_philo; i++)
