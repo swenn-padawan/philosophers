@@ -6,7 +6,7 @@
 /*   By: jlorette <jlorette@42angouleme.fr>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 11:47:11 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/19 11:01:59 by jlorette         ###   ########.fr       */
+/*   Updated: 2025/01/19 11:19:36 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,8 @@ void print_state(long ms, t_philo *philo, char *state, char *color)
     pthread_mutex_unlock(philo->mutex);
 }
 
-int has_died(t_philo *philo, long time_to_die) {
+int has_died(t_philo *philo, long time_to_die)
+{
     struct timeval current_time;
     gettimeofday(&current_time, NULL);
     long elapsed_time = get_elapsed_ms() - philo->last_eat;
@@ -57,7 +58,8 @@ int has_died(t_philo *philo, long time_to_die) {
     return (0);
 }
 
-void *routine(void *arg) {
+void *routine(void *arg)
+{
     t_philo *philo = (t_philo *)arg;
     t_data *data = &philo->data;
 	int first;
@@ -72,39 +74,38 @@ void *routine(void *arg) {
 		first = second;
 		second = tmp;
 	}
-
-		while (*(philo->flag) == 0)
+	if (philo->data.nb_philo == 1)
+	{
+		print_state(0, philo, "has taken the left fork", BLUE);
+		usleep(philo->data.time_to_die * 1000);
+		print_state(philo->data.time_to_die, philo, "has died", RED);
+		return (NULL);
+	}
+	while (*(philo->flag) == 0)
         continue;
-
     while (*(philo->flag))
 	{
-        // struct timeval current_time;
 		if (has_died(philo, data->time_to_die))
 			break ;
-        // gettimeofday(&current_time, NULL);
         pthread_mutex_lock(philo->mutex);
         long elapsed_time = get_elapsed_ms() - philo->last_eat;
         pthread_mutex_unlock(philo->mutex);
-
         if (elapsed_time >= data->time_to_die) {
             print_state(get_elapsed_ms(), philo, "has died", RED);
             *(philo->flag) = 0;
             break;
         }
-       pthread_mutex_lock(&data->forks[first]);
+		pthread_mutex_lock(&data->forks[first]);
         print_state(get_elapsed_ms(), philo, "has taken the first fork", BLUE);
         pthread_mutex_lock(&data->forks[second]);
         print_state(get_elapsed_ms(), philo, "has taken the second fork", BLUE);
         print_state(get_elapsed_ms(), philo, "is eating", GREEN);
-
         pthread_mutex_lock(philo->mutex);
         philo->last_eat = get_elapsed_ms();
         pthread_mutex_unlock(philo->mutex);
-
         usleep(data->time_to_eat * 1000);
         pthread_mutex_unlock(&data->forks[first]);
         pthread_mutex_unlock(&data->forks[second]);
-
         print_state(get_elapsed_ms(), philo, "is sleeping", CYAN);
         usleep(data->time_to_sleep * 1000);
         print_state(get_elapsed_ms(), philo, "is thinking", MAGENTA);
