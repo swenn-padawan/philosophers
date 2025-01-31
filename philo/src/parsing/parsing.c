@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:29:38 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/17 07:54:10 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/01/30 23:00:50 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,11 @@ static void	check_data(t_data *data, int *err, int flag)
 {
 	if (flag)
 		*err = ERR_TOO_HIGH_VALUE;
+	else if (data->nb_philo > 200)
+	{
+		*err = ERR_TOO_MUCH_PHILOS;
+		return ;	
+	}
 	else if (valid_args_convertion(data->nb_philo)
 		|| valid_args_convertion(data->time_to_die)
 		|| valid_args_convertion(data->time_to_eat)
@@ -58,10 +63,8 @@ static void	check_data(t_data *data, int *err, int flag)
 
 void	philo_parse_args(t_data *data, char **argv, int argc, int *err)
 {
-	int	error;
 	int	flag;
 
-	error = 0;
 	flag = 0;
 	if (valid_args(argc, argv))
 	{
@@ -77,9 +80,8 @@ void	philo_parse_args(t_data *data, char **argv, int argc, int *err)
 	{
 		data->nb_must_eat = ft_atoi(argv[5], &flag);
 		if (!data->nb_must_eat)
-			error = ERR_MUST_EAT;
+			*err = ERR_MUST_EAT;
 	}
-	check_data(data, &error, flag);
-	handle_error(error);
-	*err = error;
+	check_data(data, err, flag);
+	handle_error(*err);
 }
