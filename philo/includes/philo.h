@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:35:24 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/19 10:43:21 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/01 22:42:06 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,15 @@
 #define CYAN    "\033[36m"
 #define GRAY    "\033[90m"
 
+#define LEFT "has taken the left fork"
+#define RIGHT "has taken the right fork"
+#define EAT "is eating"
+#define SLEEP "is sleeping"
+#define THINK "is thinking"
+#define DIED "has died"
+
+#define MAX_PHILO 200
+
 enum	e_error
 {
 	ERR_NEGATIVE = 1,
@@ -38,9 +47,11 @@ enum	e_error
 	ERR_TOO_HIGH_VALUE,
 	ERR_MUST_EAT,
 	ERR_MALLOC_FAILED,
+	ERR_TOO_MUCH_PHILOS,
+	ERR_THREAD_FAILED
 };
 
-typedef struct __attribute__((aligned(8))) s_data
+typedef struct s_data
 {
 	int				nb_philo;
 	int				time_to_die;
@@ -48,24 +59,29 @@ typedef struct __attribute__((aligned(8))) s_data
 	int				time_to_sleep;
 	int				nb_must_eat;
 	struct timeval	start;
-	pthread_mutex_t	*forks;
 }	t_data;
 
 typedef struct	s_philo
 {
 	int					id;
+	pthread_mutex_t		*left;
+	pthread_mutex_t		*right;
+	pthread_mutex_t		*dead;
+	pthread_mutex_t		*print;
 	pthread_t			fork;
-	pthread_mutex_t		*mutex;
-	pthread_mutex_t		*flag_mutex;
-	struct s_philo		*next;
-	struct s_philo		*prev;
+	char				is_dead;
 	long				last_eat;
 	t_data				data;
-	struct timeval		time;
-	int					*flag;
-	struct s_philo		*left;
-	struct s_philo		*right;
 }	t_philo;
+
+typedef struct	t_simulation
+{
+	t_data			data;
+	pthread_mutex_t	print;
+	pthread_mutex_t	dead;
+	pthread_mutex_t	fork[MAX_PHILO];
+	t_philo			philos[MAX_PHILO];
+}	t_simulation;
 
 //folder: parsing
 void	philo_parse_args(t_data *data, char **argv, int argc, int *err);
