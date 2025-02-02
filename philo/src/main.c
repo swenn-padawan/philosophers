@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 11:47:11 by stetrel           #+#    #+#             */
-/*   Updated: 2025/02/02 01:13:16 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/02 11:49:03 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ int has_died(t_philo *philo, long time_to_die)
 	static pthread_mutex_t	time = PTHREAD_MUTEX_INITIALIZER;
 
 	pthread_mutex_lock(&time);
-	if (!philo->data.nb_must_eat)
+	if (philo->flag_must_eat && !philo->data.nb_must_eat)
 	{
 		pthread_mutex_unlock(&time);
 		return (1);
@@ -98,7 +98,8 @@ void	*routine(t_philo *philo)
 		pthread_mutex_lock(philo->right);
 		print_state(get_elapsed_ms(), philo, RIGHT, CYAN);
 		philo->last_eat  = get_elapsed_ms();
-		philo->data.nb_must_eat--;
+		if (philo->flag_must_eat)
+			philo->data.nb_must_eat--;
 		print_state(get_elapsed_ms(), philo, EAT, MAGENTA);
 		pthread_mutex_unlock(philo->left);
 		pthread_mutex_unlock(philo->right);
@@ -139,6 +140,7 @@ void	sim_init(t_simulation *sim, int *error)
 		sim->philos[i].data = sim->data;
 		sim->philos[i].dead = &sim->dead;
 		sim->philos[i].print = &sim->print;
+		sim->philos[i].flag_must_eat = (sim->data.nb_must_eat != 0);
 		if (pthread_create(&sim->philos[i].fork, NULL, (void *(*)(void *))routine, &sim->philos[i]) != 0)
 		{
 			*error = ERR_THREAD_FAILED;

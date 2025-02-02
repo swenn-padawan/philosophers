@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:29:38 by stetrel           #+#    #+#             */
-/*   Updated: 2025/02/01 23:54:25 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/02 11:55:20 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ static int	valid_args_convertion(int data)
 	return (0);
 }
 
-static void	check_data(t_data *data, int *err, int flag)
+static void	check_data(t_data *data, int *err, int flag, int argc)
 {
 	if (flag)
 		*err = ERR_TOO_HIGH_VALUE;
@@ -58,6 +58,8 @@ static void	check_data(t_data *data, int *err, int flag)
 		|| valid_args_convertion(data->time_to_die)
 		|| valid_args_convertion(data->time_to_eat)
 		|| valid_args_convertion(data->time_to_sleep))
+		*err = ERR_NEGATIVE;
+	else if (argc == 6 && valid_args_convertion(data->nb_must_eat))
 		*err = ERR_NEGATIVE;
 }
 
@@ -82,6 +84,6 @@ void	philo_parse_args(t_data *data, char **argv, int argc, int *err)
 		if (!data->nb_must_eat)
 			*err = ERR_MUST_EAT;
 	}
-	check_data(data, err, flag);
+	check_data(data, err, flag, argc);
 	handle_error(*err);
 }

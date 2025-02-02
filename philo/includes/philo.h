@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:35:24 by stetrel           #+#    #+#             */
-/*   Updated: 2025/02/01 22:42:06 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/02 11:47:47 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ typedef struct	s_philo
 	pthread_mutex_t		*dead;
 	pthread_mutex_t		*print;
 	pthread_t			fork;
-	char				is_dead;
+	int					flag_must_eat;
 	long				last_eat;
 	t_data				data;
 }	t_philo;
