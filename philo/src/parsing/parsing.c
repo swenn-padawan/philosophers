@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:29:38 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/30 23:00:50 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/01 23:54:25 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ static int	valid_args(int argc, char **argv)
 }
 static int	valid_args_convertion(int data)
 {
-	if (data < 0)
+	if (data <= 0)
 		return (1);
 	return (0);
 }

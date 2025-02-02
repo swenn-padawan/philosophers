@@ -17,7 +17,6 @@ SRCS		:= main.c \
 			   parsing/parsing.c \
 			   utils/ft_atoi.c \
 			   utils/ft_strlen.c \
-			   utils/ft_memcpy.c \
 			   errors/parsing_errors.c \
 
 SRCS	:= $(addprefix $(SRCS_DIR)/, $(SRCS))
