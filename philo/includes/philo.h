@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:35:24 by stetrel           #+#    #+#             */
-/*   Updated: 2025/02/02 11:47:47 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/06 13:20:36 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,12 +64,15 @@ typedef struct s_data
 typedef struct	s_philo
 {
 	int					id;
+	pthread_mutex_t		*eat;
 	pthread_mutex_t		*left;
 	pthread_mutex_t		*right;
-	pthread_mutex_t		*dead;
 	pthread_mutex_t		*print;
-	pthread_t			fork;
+	pthread_mutex_t		*dead;
+	pthread_mutex_t		*last_eat_m;
 	int					flag_must_eat;
+	int					*is_dead;
+	pthread_t			fork;
 	long				last_eat;
 	t_data				data;
 }	t_philo;
@@ -79,6 +82,8 @@ typedef struct	t_simulation
 	t_data			data;
 	pthread_mutex_t	print;
 	pthread_mutex_t	dead;
+	pthread_mutex_t	last_eat_m;
+	int				is_dead;
 	pthread_mutex_t	fork[MAX_PHILO];
 	t_philo			philos[MAX_PHILO];
 }	t_simulation;

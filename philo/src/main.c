@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 11:47:11 by stetrel           #+#    #+#             */
-/*   Updated: 2025/02/02 11:49:03 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/06 19:17:22 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,7 @@ long get_elapsed_ms(void)
 	static struct timeval	start;
 	struct timeval	current;
 	struct timeval ts_start;
-	static pthread_mutex_t time = PTHREAD_MUTEX_INITIALIZER;
 
-	pthread_mutex_lock(&time);
 	if (!flag)
 	{
 		gettimeofday(&start, NULL);
@@ -36,7 +34,6 @@ long get_elapsed_ms(void)
 	}
 	ts_start = start;
 	gettimeofday(&current, NULL);
-	pthread_mutex_unlock(&time);
     return ((current.tv_sec - ts_start.tv_sec) * 1000L) +
            ((current.tv_usec - ts_start.tv_usec) / 1000L);
 }
@@ -44,68 +41,64 @@ long get_elapsed_ms(void)
 int has_died(t_philo *philo, long time_to_die)
 {
     long elapsed_time;
-	static pthread_mutex_t	time = PTHREAD_MUTEX_INITIALIZER;
 
-	pthread_mutex_lock(&time);
 	if (philo->flag_must_eat && !philo->data.nb_must_eat)
-	{
-		pthread_mutex_unlock(&time);
 		return (1);
-	}
-	elapsed_time = get_elapsed_ms() - philo->last_eat;
+	pthread_mutex_lock(philo->dead);
+    elapsed_time = get_elapsed_ms() - philo->last_eat;
+	pthread_mutex_unlock(philo->dead);
     if (elapsed_time >= time_to_die)
     {
 		pthread_mutex_lock(philo->print);
 		printf("%s%ldms | Philosopher %d %s%s\n", RED, get_elapsed_ms(), philo->id + 1, DIED, RESET);
 		pthread_mutex_unlock(philo->print);
-		pthread_mutex_unlock(&time);
+		*(philo->is_dead) = 1;
         return (1);
     }
-	pthread_mutex_unlock(&time);
     return (0);
 }
 
-void	*ft_manager(t_simulation *sim)
+int print_state(long ms, t_philo *philo, char *state, char *color)
 {
-	int	i;
-
-	while (1)
-	{
-		i = 0;
-		while (i < sim->data.nb_philo)
-		{
-			if (has_died(&sim->philos[i], sim->data.time_to_die))
-				exit(1);
-			i++;	
-		}
-	}
-	return (NULL);
-}
-
-void print_state(long ms, t_philo *philo, char *state, char *color)
-{
+	if (*(philo->is_dead) || has_died(philo, philo->data.time_to_die))
+		return (1);
 	pthread_mutex_lock(philo->print);
 	printf("%s%ldms | Philosopher %d %s%s\n", color, ms, philo->id + 1, state, RESET);
 	pthread_mutex_unlock(philo->print);
+	return (0);
 }
+
 
 void	*routine(t_philo *philo)
 {
 	while (1)
 	{
 		pthread_mutex_lock(philo->left);
-		print_state(get_elapsed_ms(), philo, LEFT, CYAN);
+		if (print_state(get_elapsed_ms(), philo, LEFT, CYAN))
+		{
+			pthread_mutex_unlock(philo->left);
+			break ;
+		}
 		pthread_mutex_lock(philo->right);
-		print_state(get_elapsed_ms(), philo, RIGHT, CYAN);
+		if (print_state(get_elapsed_ms(), philo, LEFT, CYAN))
+		{
+			pthread_mutex_unlock(philo->left);
+			pthread_mutex_unlock(philo->right);
+			break ;
+		}
 		philo->last_eat  = get_elapsed_ms();
 		if (philo->flag_must_eat)
 			philo->data.nb_must_eat--;
-		print_state(get_elapsed_ms(), philo, EAT, MAGENTA);
+		if (print_state(get_elapsed_ms(), philo, EAT, MAGENTA))
+			break ;
+		usleep(1000 * philo->data.time_to_eat);
 		pthread_mutex_unlock(philo->left);
 		pthread_mutex_unlock(philo->right);
-		usleep(1000 * philo->data.time_to_eat);
-		print_state(get_elapsed_ms(), philo, SLEEP, BLUE);
+		if (print_state(get_elapsed_ms(), philo, SLEEP, BLUE))
+			break ;
 		usleep(1000 * philo->data.time_to_sleep);
+		if (print_state(get_elapsed_ms(), philo, THINK, BLUE))
+			break ;
 	}
 	return (NULL);
 }
@@ -137,9 +130,10 @@ void	sim_init(t_simulation *sim, int *error)
 		sim->philos[i].left = &sim->fork[i];
 		sim->philos[i].right = &sim->fork[(i + 1) % sim->data.nb_philo];
 		memcpy(&sim->philos[i].data, &sim->data, sizeof(sim->data));
-		sim->philos[i].data = sim->data;
 		sim->philos[i].dead = &sim->dead;
+		sim->philos[i].is_dead = &sim->is_dead;
 		sim->philos[i].print = &sim->print;
+		sim->philos[i].last_eat_m = &sim->last_eat_m;
 		sim->philos[i].flag_must_eat = (sim->data.nb_must_eat != 0);
 		if (pthread_create(&sim->philos[i].fork, NULL, (void *(*)(void *))routine, &sim->philos[i]) != 0)
 		{
@@ -148,6 +142,7 @@ void	sim_init(t_simulation *sim, int *error)
 		}
 		i++;
 	}
+	*error = 0;
 }
 
 int	main(int argc, char **argv)
@@ -159,16 +154,13 @@ int	main(int argc, char **argv)
 	sim = (t_simulation){0};
 	if (check_data(argv, &sim.data, argc))
 		return (1);
-	pthread_t manager;
 	sim_init(&sim, &error);
 	if (error)
 		return (1);
-	pthread_create(&manager, NULL, (void *(*)(void *))ft_manager, &sim);
 	while (i < sim.data.nb_philo)
 	{
 		pthread_join(sim.philos[i].fork, NULL);
 		i++;
 	}
-	pthread_join(manager, NULL);
 	return (0);
 }
