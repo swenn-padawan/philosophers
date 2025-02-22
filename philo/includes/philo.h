@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:35:24 by stetrel           #+#    #+#             */
-/*   Updated: 2025/02/01 22:42:06 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/22 09:26:34 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,24 +20,25 @@
 # include <string.h>
 # include <sys/time.h>
 # include <stdint.h>
+# include <stdbool.h>
 
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define MAGENTA "\033[35m"
-#define CYAN    "\033[36m"
-#define GRAY    "\033[90m"
+# define RESET   "\033[0m"
+# define RED     "\033[31m"
+# define GREEN   "\033[32m"
+# define YELLOW  "\033[33m"
+# define BLUE    "\033[34m"
+# define MAGENTA "\033[35m"
+# define CYAN    "\033[36m"
+# define GRAY    "\033[90m"
 
-#define LEFT "has taken the left fork"
-#define RIGHT "has taken the right fork"
-#define EAT "is eating"
-#define SLEEP "is sleeping"
-#define THINK "is thinking"
-#define DIED "has died"
+# define LEFT_FORK "has taken the left fork\n"
+# define RIGHT_FORK "has taken the right fork\n"
+# define EATING "is eating\n"
+# define THINKING "is thinking\n"
+# define SLEEPING "is sleeping\n"
+# define DEAD "died\n"
 
-#define MAX_PHILO 200
+# define MAX_PHILOS 200
 
 enum	e_error
 {
@@ -47,40 +48,46 @@ enum	e_error
 	ERR_TOO_HIGH_VALUE,
 	ERR_MUST_EAT,
 	ERR_MALLOC_FAILED,
-	ERR_TOO_MUCH_PHILOS,
-	ERR_THREAD_FAILED
+	ERR_TOO_MUCH_PHILOS
 };
 
-typedef struct s_data
+typedef struct __attribute__((aligned(8))) s_data
 {
 	int				nb_philo;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				nb_must_eat;
-	struct timeval	start;
+	long			start;
 }	t_data;
 
-typedef struct	s_philo
+typedef struct s_philo
 {
 	int					id;
-	pthread_mutex_t		*left;
-	pthread_mutex_t		*right;
-	pthread_mutex_t		*dead;
-	pthread_mutex_t		*print;
 	pthread_t			fork;
-	char				is_dead;
+	bool				*dead;
+	int					nb_meals;
+	pthread_mutex_t		*dead_mutex;
+	pthread_mutex_t		mutex;
+	pthread_mutex_t		*print;
+	pthread_mutex_t		*start;
+	pthread_mutex_t		*left_fork;
+	pthread_mutex_t		*right_fork;
 	long				last_eat;
 	t_data				data;
+	struct timeval		time;
 }	t_philo;
 
-typedef struct	t_simulation
+typedef struct s_simulation
 {
-	t_data			data;
+	pthread_mutex_t	start;
 	pthread_mutex_t	print;
-	pthread_mutex_t	dead;
-	pthread_mutex_t	fork[MAX_PHILO];
-	t_philo			philos[MAX_PHILO];
+	pthread_mutex_t	dead_mutex;
+	t_data			data;
+	bool			dead;
+	pthread_mutex_t	fork[MAX_PHILOS];
+	t_philo			philos[MAX_PHILOS];
+	long			start_time;
 }	t_simulation;
 
 //folder: parsing
@@ -94,4 +101,25 @@ void	*ft_memcpy(void *dest, void *src, size_t n);
 
 //folder: errors
 void	handle_error(int error);
+
+//init
+void	sim_init(t_simulation *simulation);
+
+//monitor
+void	*monitor(void *arg);
+void	*routine(void *arg);
+
+//main
+void	print_state(t_philo *philo, char *color, char *to_print);
+
+//main_utils
+long	get_elapsed_ms(void);
+int		global_check(char **argv, t_data *data, int argc);
+bool	has_philo_died(t_philo *philo);
+void	mark_philo_dead(t_philo *philo);
+int		check_death(t_philo *philo);
+
+//main_utils_dead
+void	handle_lonely_philo(t_philo *philo);
+
 #endif

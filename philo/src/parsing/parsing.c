@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:29:38 by stetrel           #+#    #+#             */
-/*   Updated: 2025/01/30 23:00:50 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/21 06:44:37 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,7 @@ static int	valid_args(int argc, char **argv)
 	}
 	return (0);
 }
+
 static int	valid_args_convertion(int data)
 {
 	if (data < 0)
@@ -49,10 +50,10 @@ static void	check_data(t_data *data, int *err, int flag)
 {
 	if (flag)
 		*err = ERR_TOO_HIGH_VALUE;
-	else if (data->nb_philo > 200)
+	if (data->nb_philo > MAX_PHILOS)
 	{
 		*err = ERR_TOO_MUCH_PHILOS;
-		return ;	
+		return ;
 	}
 	else if (valid_args_convertion(data->nb_philo)
 		|| valid_args_convertion(data->time_to_die)
@@ -63,8 +64,10 @@ static void	check_data(t_data *data, int *err, int flag)
 
 void	philo_parse_args(t_data *data, char **argv, int argc, int *err)
 {
+	int	error;
 	int	flag;
 
+	error = 0;
 	flag = 0;
 	if (valid_args(argc, argv))
 	{
@@ -80,8 +83,9 @@ void	philo_parse_args(t_data *data, char **argv, int argc, int *err)
 	{
 		data->nb_must_eat = ft_atoi(argv[5], &flag);
 		if (!data->nb_must_eat)
-			*err = ERR_MUST_EAT;
+			error = ERR_MUST_EAT;
 	}
-	check_data(data, err, flag);
-	handle_error(*err);
+	check_data(data, &error, flag);
+	handle_error(error);
+	*err = error;
 }

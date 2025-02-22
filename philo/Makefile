@@ -14,6 +14,9 @@ CFLAGS		:= -Wall -Wextra -Werror -g
 IFLAGS		:= -I ./includes
 
 SRCS		:= main.c \
+			   main_utils.c \
+			   main_utils_dead.c \
+			   init_philo.c \
 			   parsing/parsing.c \
 			   utils/ft_atoi.c \
 			   utils/ft_strlen.c \
