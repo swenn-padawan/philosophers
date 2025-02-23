@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 01:29:34 by stetrel           #+#    #+#             */
-/*   Updated: 2025/02/22 10:37:07 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/23 15:53:21 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,48 +44,28 @@ int	global_check(char **argv, t_data *data, int argc)
 	return (0);
 }
 
-bool	has_philo_died(t_philo *philo)
+long	get_time(void)
 {
-	bool	is_dead;
-	long	last_eat;
+	struct timeval	time;
+
+	gettimeofday(&time, NULL);
+	return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
+}
+
+void	sleep_time(t_philo *philo)
+{
+	long	sleep;
+	long	start;
 
 	pthread_mutex_lock(&philo->mutex);
-	last_eat = philo->last_eat;
+	sleep = philo->data.time_to_sleep;
 	pthread_mutex_unlock(&philo->mutex);
-	is_dead = (get_elapsed_ms() - last_eat >= philo->data.time_to_die);
-	return (is_dead);
-}
-
-void	mark_philo_dead(t_philo *philo)
-{
-	pthread_mutex_lock(philo->dead_mutex);
-	if (*(philo->dead) == 1)
+	start = get_time();
+	while (get_time() - start <= sleep)
 	{
-		pthread_mutex_unlock(philo->dead_mutex);
-		return ;
+		if (check_death(philo))
+			return ;
+		usleep(1000);
 	}
-	*(philo->dead) = 1;
-	pthread_mutex_unlock(philo->dead_mutex);
-	if (philo->nb_meals == philo->data.nb_must_eat && philo->data.nb_must_eat)
-		return ;
-	pthread_mutex_lock(philo->print);
-	printf("%s %ldms %d %s %s", RED, get_elapsed_ms(), philo->id, DEAD, RESET);
-	pthread_mutex_unlock(philo->print);
-}
-
-int	check_death(t_philo *philo)
-{
-	pthread_mutex_lock(philo->dead_mutex);
-	if (*(philo->dead))
-	{
-		pthread_mutex_unlock(philo->dead_mutex);
-		return (1);
-	}
-	pthread_mutex_unlock(philo->dead_mutex);
-	if (has_philo_died(philo))
-	{
-		mark_philo_dead(philo);
-		return (1);
-	}
-	return (0);
+	return ;
 }

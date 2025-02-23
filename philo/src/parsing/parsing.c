@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 09:29:38 by stetrel           #+#    #+#             */
-/*   Updated: 2025/02/21 06:44:37 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/23 15:44:37 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ void	philo_parse_args(t_data *data, char **argv, int argc, int *err)
 	if (argv[5])
 	{
 		data->nb_must_eat = ft_atoi(argv[5], &flag);
-		if (!data->nb_must_eat)
+		if (!data->nb_must_eat || data->nb_must_eat <= 0)
 			error = ERR_MUST_EAT;
 	}
 	check_data(data, &error, flag);

@@ -6,7 +6,7 @@
 /*   By: stetrel <stetrel@42angouleme.fr>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 10:35:24 by stetrel           #+#    #+#             */
-/*   Updated: 2025/02/22 09:26:34 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/23 15:53:04 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,8 @@ int		global_check(char **argv, t_data *data, int argc);
 bool	has_philo_died(t_philo *philo);
 void	mark_philo_dead(t_philo *philo);
 int		check_death(t_philo *philo);
+long	get_time(void);
+void	sleep_time(t_philo *philo);
 
 //main_utils_dead
 void	handle_lonely_philo(t_philo *philo);

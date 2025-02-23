@@ -6,7 +6,7 @@
 /*   By: swenntetrel <swenntetrel@42angouleme.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/11 12:21:34 by swenntetrel       #+#    #+#             */
-/*   Updated: 2025/02/21 06:46:38 by stetrel          ###   ########.fr       */
+/*   Updated: 2025/02/23 15:47:17 by stetrel          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,6 @@ void	handle_error(int error)
 	if (error == ERR_TOO_HIGH_VALUE)
 		write (2, "Error!: A value is too high\n", 28);
 	if (error == ERR_MUST_EAT)
-		write (2, "Error!: \
-			The value of the must_eat arguments should be > 0!\n", 59);
+		write(2, "Error!: "
+			"The value of the must_eat arguments should be > 0!\n", 59);
 }
